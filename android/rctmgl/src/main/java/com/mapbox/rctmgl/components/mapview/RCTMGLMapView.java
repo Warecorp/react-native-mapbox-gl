@@ -987,14 +987,18 @@ public class RCTMGLMapView extends MapView implements
     }
 
     public void getVisibleBounds(String callbackID) {
-        AndroidCallbackEvent event = new AndroidCallbackEvent(this, callbackID, EventKeys.MAP_ANDROID_CALLBACK);
-        VisibleRegion region = mMap.getProjection().getVisibleRegion();
+        try {
+            AndroidCallbackEvent event = new AndroidCallbackEvent(this, callbackID, EventKeys.MAP_ANDROID_CALLBACK);
+            VisibleRegion region = mMap.getProjection().getVisibleRegion();
 
-        WritableMap payload = new WritableNativeMap();
-        payload.putArray("visibleBounds", GeoJSONUtils.fromLatLngBounds(region.latLngBounds));
-        event.setPayload(payload);
+            WritableMap payload = new WritableNativeMap();
+            payload.putArray("visibleBounds", GeoJSONUtils.fromLatLngBounds(region.latLngBounds));
+            event.setPayload(payload);
 
-        mManager.handleEvent(event);
+            mManager.handleEvent(event);
+        } catch (exception: InvalidLatLngBoundsException) {
+            // ignore invalid latlng exceptions, was seen happening during component unmounts
+        }
     }
 
     public void getPointInView(String callbackID, LatLng mapCoordinate) {
@@ -1283,8 +1287,12 @@ public class RCTMGLMapView extends MapView implements
         properties.putBoolean("animated", mCameraChangeTracker.isAnimated());
         properties.putBoolean("isUserInteraction", mCameraChangeTracker.isUserInteraction());
 
-        VisibleRegion visibleRegion = mMap.getProjection().getVisibleRegion();
-        properties.putArray("visibleBounds", GeoJSONUtils.fromLatLngBounds(visibleRegion.latLngBounds));
+        try {
+            VisibleRegion visibleRegion = mMap.getProjection().getVisibleRegion();
+            properties.putArray("visibleBounds", GeoJSONUtils.fromLatLngBounds(visibleRegion.latLngBounds));
+        } catch (exception: InvalidLatLngBoundsException) {
+            // ignore invalid latlng exceptions, was seen happening during component unmounts
+        }
 
         return GeoJSONUtils.toPointFeature(latLng, properties);
     }
