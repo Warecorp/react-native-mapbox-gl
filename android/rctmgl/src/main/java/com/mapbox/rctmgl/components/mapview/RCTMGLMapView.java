@@ -996,7 +996,7 @@ public class RCTMGLMapView extends MapView implements
             event.setPayload(payload);
 
             mManager.handleEvent(event);
-        } catch (exception: InvalidLatLngBoundsException) {
+        } catch (Exception e) {
             // ignore invalid latlng exceptions, was seen happening during component unmounts
         }
     }
@@ -1290,7 +1290,7 @@ public class RCTMGLMapView extends MapView implements
         try {
             VisibleRegion visibleRegion = mMap.getProjection().getVisibleRegion();
             properties.putArray("visibleBounds", GeoJSONUtils.fromLatLngBounds(visibleRegion.latLngBounds));
-        } catch (exception: InvalidLatLngBoundsException) {
+        } catch (Exception e) {
             // ignore invalid latlng exceptions, was seen happening during component unmounts
         }
 
